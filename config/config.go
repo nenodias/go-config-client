@@ -27,7 +27,7 @@ type ConfigProperties struct {
 
 var Config = ConfigProperties{}
 
-func GetConfig(app string) error {
+func GetConfig(app string, authorizartion string) error {
 	cloudURI := os.Getenv("SPRING_CLOUD_URI")
 	label := os.Getenv("SPRING_CLOUD_LABEL")
 	profiles := os.Getenv("SPRING_PROFILES_ACTIVE")
@@ -39,6 +39,11 @@ func GetConfig(app string) error {
 		return err
 	}
 	req.Header.Add("Accept", "application/json")
+	if authorizartion != "" {
+		basicAuth := "Basic " + authorizartion
+		log.Println(basicAuth)
+		req.Header.Add("Authorization", basicAuth)
+	}
 	res, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err.Error())

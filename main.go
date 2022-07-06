@@ -1,39 +1,44 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
 
 	"github.com/nenodias/go-config-client/config"
+	"github.com/nenodias/go-config-client/load"
 )
 
-type Prefixable interface {
-	Prefix() string
+type Datasource struct {
+	PoolName    string `config:"pool-name"`
+	IdleTimeout int64  `config:"idle-timeout"`
 }
 
-type EurekaInstance struct {
-	NonSecurePort   int64 `config:"nonSecurePort"`
-	PreferIpAddress bool  `config:"preferIpAddress"`
+func (e Datasource) Prefix() string {
+	return "hikari"
 }
 
-func (e *EurekaInstance) Prefix() string {
-	return "instance"
+type SpringDatasource struct {
+	Datasource Datasource `config:"datasource"`
+	ShowSQL    bool       `config:"jpa.show-sql"`
 }
 
-type EurekaProperties struct {
-	Instance    EurekaInstance `config:"instance"`
-	DefaultZone string         `config:"client.serviceUrl.defaultZone"`
-}
-
-func (e *EurekaProperties) Prefix() string {
-	return "eureka"
+func (e SpringDatasource) Prefix() string {
+	return "spring"
 }
 
 func main() {
-	os.Setenv("SPRING_CLOUD_URI", "http://localhost:8888")
-	os.Setenv("SPRING_CLOUD_LABEL", "main")
-	os.Setenv("SPRING_PROFILES_ACTIVE", "default,dev")
-	config.GetConfig("test")
+	os.Setenv("SPRING_CLOUD_URI", "https://localhost:8888")
+	os.Setenv("SPRING_CLOUD_LABEL", "qa")
+	os.Setenv("SPRING_PROFILES_ACTIVE", "qa")
+	user := ""
+	pass := ``
+	auth := ""
+	if user != "" && pass != "" {
+		auth = base64.StdEncoding.EncodeToString([]byte(user + ":" + pass))
+	}
+
+	config.GetConfig("test", auth)
 
 	props := make(map[string]any)
 	for _, v := range config.Config.PropertySources {
@@ -43,8 +48,9 @@ func main() {
 			}
 		}
 	}
-
-	q := EurekaProperties{}
-	fmt.Println(q)
-
+	q := SpringDatasource{}
+	load.Properties(&q, props)
+	fmt.Println(q.ShowSQL)
+	fmt.Println(q.Datasource.IdleTimeout)
+	fmt.Println(q.Datasource.PoolName)
 }
