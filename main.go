@@ -1,10 +1,10 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 
+	"github.com/nenodias/go-config-client/auth"
 	"github.com/nenodias/go-config-client/config"
 	"github.com/nenodias/go-config-client/load"
 )
@@ -33,12 +33,12 @@ func main() {
 	os.Setenv("SPRING_PROFILES_ACTIVE", "qa")
 	user := ""
 	pass := ``
-	auth := ""
+	authentication := ""
 	if user != "" && pass != "" {
-		auth = base64.StdEncoding.EncodeToString([]byte(user + ":" + pass))
+		authentication = auth.BasicAuth(user, pass)
 	}
 
-	config.GetConfig("test", auth)
+	config.GetConfig("test", authentication)
 
 	props := make(map[string]any)
 	for _, v := range config.Config.PropertySources {
