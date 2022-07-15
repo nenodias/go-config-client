@@ -14,7 +14,7 @@ type Datasource struct {
 	IdleTimeout int64  `config:"idle-timeout"`
 }
 
-func (e Datasource) Prefix() string {
+func (e *Datasource) Prefix() string {
 	return "hikari"
 }
 
@@ -23,7 +23,7 @@ type SpringDatasource struct {
 	ShowSQL    bool       `config:"jpa.show-sql"`
 }
 
-func (e SpringDatasource) Prefix() string {
+func (e *SpringDatasource) Prefix() string {
 	return "spring"
 }
 

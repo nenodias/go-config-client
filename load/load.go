@@ -16,7 +16,7 @@ func ProcessField(value *reflect.Value, element reflect.Type, i int, key string,
 	varType := field.Type.Kind()
 	if varType == reflect.Struct {
 		element := fieldVal.Addr().Elem()
-		prefix := fieldVal.Interface().(Prefixable).Prefix()
+		prefix := element.Addr().Interface().(Prefixable).Prefix()
 		loadFields(&element, element.Type(), key+"."+prefix, props)
 	} else {
 		if newValue, ok := props[key]; ok {
